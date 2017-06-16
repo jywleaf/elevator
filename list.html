@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>电梯列表</title>
+</head>
+<style>
+*{margin:0px;padding:0px;}
+a{text-decoration: none;font-size: 20px;color: #000;}
+#content{width: 100%}
+#header{background: #3b77a9;height: 57px}
+#header img{height: 50px;float: left;margin-left:3.75%;margin-top: 5px;}
+#header span{display:block;line-height: 57px;float: left;margin-left:23%;font-size: 23px;color: #fff;letter-spacing: 5px;}
+#main>div{margin:15px 3px 21px 3px;width: 100%;float: left;}
+.initialize{background:#ff3300;font-size: 13px;width:20px;float: left;padding: 5px 0;margin-top: 10px;text-align: center;}
+.right{float: left;margin-left: 5px;width:81.94444444444444%;}
+.name{font-size: 20px;line-height:30px;cursor: pointer;}
+.code{font-size: 16px;line-height: 30px;}
+hr{width: 100%;height:3px;background: #cacaff;}
+</style>
+<body>
+<div id="content">
+	<div id="header">
+		<img src="./images/5.jpg" alt="" class="return">
+		<span>日常维保</span>
+	</div>
+	<div id="main">
+	</div>
+</div>	
+<script src="js/jquery-1.4.4.js"></script>
+<script>
+function GetQueryString(name){
+     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+
+     var r = window.location.search.substr(1).match(reg);
+
+     if(r != undefined || r != null)return  unescape(r[2]);
+}
+
+(function (){
+	var type = GetQueryString("type");
+	if(type == 1){
+		$("#header span").html("日常维保");
+	}else if(type == 2){
+		$("#header span").html("季度维保");
+	}else if(type == 3){
+		$("#header span").html("半年维保");
+	}else if(type == 4){
+		$("#header span").html("年度维保");
+	}else{
+		$("#header span").html("应急抢修");
+	}
+	$.post(
+		"http://s.50css.com:8001/e.php",
+		{"user_id":GetQueryString("user_id"),"device_no":GetQueryString("device_no"),"login_key":GetQueryString("login_key"),"method":"get_elevator","type":GetQueryString("type")},
+		function(data){
+			console.log(data);
+			var html = "";
+			for(i=0;i<data.elevator.length;i++){
+				var color;
+				var com_name = data.elevator[i].com_name;
+				var reg_code = data.elevator[i].reg_code;
+				var state = data.elevator[i].state;
+				var id1= data.elevator[i].id;
+				if(state ==1){
+					state = "初始";
+					color ="ccc";
+				}else if(state==2){
+					state = "待维修"; 
+					color ="ff8a00";
+				}else if(state ==3 ){
+					state = "已维修";
+					color = "0f0"
+				}else{
+					state = "异常";
+					color = "f00";
+				}
+				html += '<div><div class="initialize" style="background:#' + color +'">' + state + '</div><div class="right"><div class="name"><a href="detail.html?id='+ id1+ '&user_id='+ GetQueryString("user_id")+'&device_no='+ GetQueryString("device_no")+'&login_key='+ GetQueryString("login_key") +'&state='+ data.elevator[i].state+ '&type='+ GetQueryString("type")+ '">' + com_name + '</a></div><div class="code">注册代码:' + reg_code + '</div></div></div><hr>'
+			}
+			$("#main").html(html);
+			if(type == 5){
+				$(".initialize").remove();
+			}
+		},
+		"json"
+	);
+})();
+$(".return").click(function(){
+	window.history.back();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>登陆</title>
+</head>
+<style>
+*{margin:0px;}
+#content{background: #4599e0;padding:60px 22px;}
+#header{padding:50px 5%;height:60px;}
+#header img{float: left;width:37px;}
+#header span{display:block;float: right;width:85%;line-height: 45px;font-size: 22px;color: #fff;text-align: center;}
+#main{background:#fff;border-radius: 5px;}
+#main div{height: 100px;padding-left:4.72222222222222%;}
+#main div img{width:45px;margin-top:30px;}
+#main div input{margin-left:16px; font-size: 26px;color:#868686;width: 70%;border: 0px;}
+#btn{background: #64be91;color:#fff;text-align: center;font-size: 20px;line-height:38px;margin-top: 20px; }
+</style>
+<body style="background:#4599e0">
+<div id ="content">
+	<div id="header">
+		<img src="./images/2.jpg" alt="">
+		<span>富士佳电梯维修系统</span>
+	</div>
+	<div id="main">
+		<div>
+			<img src="./images/3.jpg" alt="">
+			<input type="text" id="workerId"value="18822868054">
+
+		</div>
+		<hr>
+		<div>
+			<img src="./images/4.jpg" alt="">
+			<input type="password" id= "pwd" value="123456789">
+		</div>
+	</div>
+	<div id="btn">登陆</div>
+</div>
+<script src="js/jquery-1.4.4.js"></script>
+<script>
+$("#btn").click(function(){
+	var workerId = $("#workerId").val();
+	var pwd = $("#pwd").val();
+	if(workerId.length>=2 && workerId.length<=15){
+	}else{
+		alert("用户名长度为2到15");
+
+	}
+	if(pwd.length>=6 && pwd.length<=15){
+	}else{
+		alert("密码长度为6到15");
+		pwd = $ok("#pwd").val("");
+	}
+	
+	$.post(
+		"http://s.50css.com:8001/e.php",
+		{"method":"login"," device_no":"119","username":workerId,"password":pwd},
+		function(data){
+			//console.log(data);
+			if(data.code == "ok"){
+				var login_key = data.login_key;
+				var user_id = data.user_id;
+				var device_no = "119";
+				var login_time = data.login_time;
+				window.location.assign('index.html?login_key='+login_key+'&user_id='+user_id+'&device_no='+device_no + '&login_time='+login_time);
+			}else{
+				alert(data.msg);
+			}
+		},
+		"json"
+	);
+});
+</script>
+</body>
+</html>

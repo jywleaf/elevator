@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>首页</title>
+</head>
+<style>
+*{margin:0px;}
+#content{padding-top: 20px; width: 100%;height: 500px;}
+.maintain{position: relative; width: 40%;height:90px;margin:20px 4.44444444444444%;float:left;}
+.maintain img{display:block;margin:5px auto;}
+.maintain span{display:block;font-size:21px;color: #fff;text-align: center;}
+.maintain .state{position: absolute;top:-10px;left: 60%; color: #ff0000;display: inline;font-size: 18px;font-weight: bold;}
+</style>
+<body style="background:#4599e0;">
+<div id="content">
+	<div class="maintain" id="dayMaintain">
+		<div class="state"></div>
+		<img src="./images/1.jpg" alt="">
+		<span type="1">日常维保</span>
+	</div>
+	<div class="maintain" id="quarterMaintain">
+		<div class="state"></div>
+		<img src="./images/1.jpg" alt="">
+		<span type="2">季度维保</span>
+	</div>
+	<div class="maintain" id="partYearMaintain">
+		<div class="state"></div>
+		<img src="./images/1.jpg" alt="">
+		<span type="3">半年维保</span>
+	</div>
+	<div class="maintain" id="annualMaintain">
+		<div class="state"></div>
+		<img src="./images/1.jpg" alt="">
+		<span type="4">年度维保</span>
+	</div>
+	<div class="maintain" id="aidMaintain">
+		<img src="./images/1.jpg" alt="">
+		<span type="5" >应急抢修</span>
+	</div>
+
+</div>	
+</body>
+<script src="js/jquery-1.4.4.js"></script>
+<script>
+
+
+function GetQueryString(name){
+     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+     var r = window.location.search.substr(1).match(reg);
+
+     if(r != undefined || r != null){
+	return  unescape(r[2]);
+     }else{
+     	window.location.assign("login.html");
+     }	
+}
+
+$(".maintain").each(function(){
+	$(this).click(function(){
+		window.location.assign('list.html?login_key='+GetQueryString("login_key")+'&user_id='+GetQueryString("user_id")+'&device_no='+GetQueryString("device_no") + '&type=' + $(this).children("span").attr("type"));
+		//console.log($(this).children("span").attr("type"));
+	});
+});
+(function(){
+	var number = document.getElementsByClassName("state");
+	var index = 0;
+	for(j = 0;j<4;j++){
+		$.post(
+			"http://s.50css.com:8001/e.php",
+			{"user_id":GetQueryString("user_id"),"device_no":GetQueryString("device_no"),"login_key":GetQueryString("login_key"),"method":"get_elevator","type":j+1},
+			function(data){
+				var num = 0;
+				for(i=0;i<data.elevator.length;i++){
+					var state = data.elevator[i].state;
+					if( state == 2 || state == 4){
+						num ++;
+					}
+				}
+				number[index].innerHTML = num;
+				index++;
+			},
+			"json"
+		);
+		
+	}
+})();
+</script>
+</html>

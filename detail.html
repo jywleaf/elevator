@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>电梯详情</title>
+</head>
+<style>
+*{margin:0px;padding: 0px;}
+#content{width: 100%}
+#header{background: #3b77a9;height: 57px}
+#header img{height: 50px;float: left;margin-left:3.75%;margin-top: 5px;}
+#header span{display:block;line-height: 57px;float: left;margin-left:23%;font-size: 23px;color: #fff;letter-spacing: 5px;}
+#main{border:1px solid #abadaf;border-radius: 8px;margin: 29px 8px 10px 8px;}
+#equip{line-height: 40px;font-size: 26px;padding-left: 6px;margin-right:10px;color: #2f2f2f;}
+#equip .time{color: red;font-size: 18px;}
+.msg{margin:12px 18px 12px 6px;font-size: 18px;line-height: 27px;color:#2e2e2e;}
+#picture{position:relative;} 
+#picture div{color: #ff3000;margin-left: 3.4%;}
+#up_picture{width:24.5%;margin-bottom: 20px;margin-left:5.55555555555556% }
+.picture{display: inline-block; width: 65.27777777777778%;height:114px;background: #ccccff;}
+.picture img{margin:30px 2%;width: 21%;}
+.btn{margin:35px 12px 40px 12px;background: #64be91;color: #fff;font-size: 30px;line-height: 53px;text-align: center;width:90%;border:0;}
+.notice{margin:12px;font-size:16px;color: #3265cc;}
+.file1{position:absolute;top:0px;left:0px;opacity: 0;}
+
+</style>
+<body>
+<div id="content">
+	<div id="header">
+		<img src="./images/5.jpg" alt="" class="return">
+		<span>日常维保</span>
+	</div>
+	<div id="main">
+		
+	</div>
+	<div id="picture">
+		<div>还需要上传<span id="num">4</span>张图片</div>
+		<form action="http://s.50css.com:8001/e.php" name="form1" method="post" enctype="multipart/form-data" onsubmit="return false">
+			<img src="./images/6.jpg" id="up_picture">
+			<input type="file" class="file1" name="file">
+			<span class="picture"></span>
+			<input type="submit" class="btn" value="提交" id="up_data">
+		</form>
+	</div>
+	<div id="return"class="btn">返回</div>
+	<div class="notice">温馨提示:按公司要求，执行维修时，需要拍4张现场图片上传。<br>另：点击图片可查看，长按图片可删除更换</div>
+</div>
+<script src="js/jquery-1.11.3.min.js"></script>
+<script>
+function GetQueryString(name){
+     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+
+     var r = window.location.search.substr(1).match(reg);
+
+     if(r != undefined || r != null)return  unescape(r[2]);
+}
+(function(){
+	//file定位和大小
+	var position = $("#up_picture").offset();
+	$(".file1").css({"top":position.top-$("#picture").offset().top,"left":position.left,"width":$("#up_picture").width(),"height":$("#up_picture").height()});
+
+	//判断state是否为3,如果为3,就把上传图片的div隐藏
+	var state = GetQueryString("state");
+	if(state == 3){
+		$("#picture").css("display","none");
+	}
+
+	var type = GetQueryString("type");
+	if(type == 1){
+		$("#header span").html("日常维保");
+	}else if(type == 2){
+		$("#header span").html("季度维保");
+	}else if(type == 3){
+		$("#header span").html("半年维保");
+	}else if(type == 4){
+		$("#header span").html("年度维保");
+	}else{
+		$("#header span").html("应急抢修");
+	}
+
+	$.post(
+		"http://s.50css.com:8001/e.php",
+		{"user_id":GetQueryString("user_id"),"device_no":GetQueryString("device_no"),"login_key":GetQueryString("login_key"),"method":"elevator_detail","id":GetQueryString("id")},
+		 function(data){
+			console.log(data);
+			var html = "";
+			html +="<div id= 'equip'>电梯"+ data.id +"<span class='time'>"+data.add_time + "</span></div><hr>";
+			html +="<div class='msg'>注册代码:" + data.reg_code+"</div><hr>";
+			html +="<div class='msg'>说明:"+ data.rem+ "</div><hr>";
+			html +="<div class='msg'>公司名称:"+ data.com_name+"</div><hr>";
+			html +="<div class='msg'>下次维修:" + data.up_time + "</div><hr>";
+			html +="<div class='msg'>电话:" +data.tel+"</div><hr>";
+			html +="<div class='msg'>地址:" +data.address+"</div>"
+			$("#main").html(html);
+		},
+		"json"
+	);
+	/*$("[name='form1']").append('<input type="hidden" name="id" value="'+GetQueryString("id")+'" />');
+	$("[name='form1']").append('<input type="hidden" name="method" value="up_file" />');*///另外一种文件传送的方法(通过name和value)
+})();
+$(".file1").change(function(){
+	var self;
+	var fr = new FileReader();
+	var name = this.files[0].name;
+	var type = this.files[0].name.split(".");
+	if(type[1] == "jpg"|| type[1] == "jpeg"){
+		fr.readAsDataURL(this.files[0]);
+		fr.onload = function(){
+			 self = this.result;
+		}
+		var formData = new FormData($("[name='form1']")[0]);
+		formData.append("id",GetQueryString("id"));
+		formData.append("type",GetQueryString("type"));
+		formData.append("user_id",GetQueryString("user_id"));
+		formData.append("device_no",GetQueryString("device_no"));
+		formData.append("login_key",GetQueryString("login_key"));
+		formData.append("method","up_file");//添加传输数据("键","值")
+		$.ajax({
+			url :document.form1.action,
+			dataType:"json",
+			type:"POST",
+			data:formData,
+			processData:false,
+			contentType:false,
+			success:function(data){
+				if(data.code == "ok"){
+					if(data.has_images > 3){
+						$("#picture div:first").html("图片上传完成！");
+						$(".file1").remove();
+					
+					}else{
+						$("#num").html(4-data.has_images);
+					}
+					if(data.has_images < 5){
+						$(".picture").append("<img src="+ self +">");
+					}
+				}else{
+					alert("上传失败:"+data.msg);
+				}
+				//console.log(data);
+			}
+		});
+	}else{
+			alert("上传格式错误");
+	}
+});
+
+$("#up_data").click(function(){
+	$.post(
+		"http://s.50css.com:8001/e.php",
+		{"user_id":GetQueryString("user_id"),"device_no":GetQueryString("device_no"),"login_key":GetQueryString("login_key"),"method":"submit_ok","id":GetQueryString("id"),"type":GetQueryString("type")},
+		function(data){
+			if(data.code =="ok"){
+				alert("提交成功");
+			}else{
+				console.log(data.msg);
+			}
+		},
+		"json"
+	);
+});
+
+$("#return").click(function(){
+	window.history.back();
+});
+
+$(".return").click(function(){
+	window.history.back();
+});
+</script>
+</body>
+</html>
